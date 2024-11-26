@@ -1,0 +1,88 @@
+.container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(249 250 251);
+  }
+  
+  .formContainer {
+    width: 100%;
+    max-width: 28rem;
+    padding: 2rem;
+  }
+  
+  .spacer {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .spacer svg {
+    position: absolute;
+    transform: translateY(12px) translateX(15px);
+    width: 1.5rem;
+    height: 1.5rem;
+    color: gray;
+    z-index: 10;
+  }
+  
+  .logo {
+    width: 3rem;
+    height: 3rem;
+    color: rgb(244 63 94);
+    border-radius: 9999px;
+    margin: 0 auto;
+  }
+  
+  .input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    padding-left: 3.5rem;
+    border-radius: 1.5rem;
+    color: rgba(0, 0, 0, 0.838);
+    border: 1px solid rgb(209 213 219);
+  }
+  
+  .input:focus {
+    outline: 2px solid rgba(211, 211, 211, 0.534);
+    outline-offset: 2px;
+    /* outline-offset => border와 outline사이에 여백 */
+  }
+  
+  .button {
+    width: 100%;
+    background-color: rgba(211, 211, 211, 0.534);
+    color: black;
+    font-weight: bold;
+    padding: 0.75rem;
+    border-radius: 1.5rem;
+    transition-property: background-color;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  
+  .button:hover {
+    background-color: rgb(211, 211, 211);
+  }
+  
+  .button:disabled {
+    background-color: rgb(211, 211, 211);
+  }
+  
+  .message {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border-width: 1px;
+  }
+  
+  .successMessage {
+    background-color: rgb(240 253 244);
+    color: rgb(22 101 52);
+    border-color: rgb(187 247 208);
+  }
+  
+  .errorMessage {
+    background-color: rgb(254 242 242);
+    color: rgb(153 27 27);
+    border-color: rgb(254 205 211);
+  }

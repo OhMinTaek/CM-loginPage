@@ -1,0 +1,115 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(249 250 251);
+}
+
+.formContainer {
+  width: 100%;
+  max-width: 25rem;
+  padding: 2rem;
+}
+
+.logo {
+  width: 3rem;
+  height: 3rem;
+  color: rgba(244, 63, 93, 0.767);
+  border-radius: 9999px;
+  margin: 0 auto;
+}
+
+.spacer {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.spacer svg {
+  position: absolute;
+  transform: translateY(10px) translateX(15px);
+  width: 1.25rem;
+  height: 1.25rem;
+  color: gray;
+  z-index: 10;
+}
+
+.input {
+  width: 82%;
+  padding: 0.75rem 0.75rem;
+  padding-left: 3.5rem;
+  border-radius: 1.5rem;
+  color: rgba(0, 0, 0, 0.838);
+  border: 1px solid rgb(209 213 219);
+}
+
+.input::placeholder {
+  color: gray;
+}
+
+.input:focus {
+  outline: 2px solid rgba(211, 211, 211, 0.534);
+  outline-offset: 2px;
+  /* outline-offset => border와 outline사이에 여백 */
+}
+
+.button {
+  width: 100%;
+  background-color: rgba(211, 211, 211, 0.534);
+  color: black;
+  font-weight: bold;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 1.5rem;
+  transition-property: background-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.button:hover {
+  background-color: rgb(211, 211, 211);
+}
+
+.button:disabled {
+  background-color: rgb(211, 211, 211);
+}
+
+.errorText {
+  color: #dc2626;
+  padding-left: 10px;
+  font-size: 0.875rem;
+}
+
+.successMessage, .errorMessage {
+  padding: 1rem;
+  margin: 15px 0;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  padding-left: 1.5rem;
+  font-size: 15px;
+}
+
+.successMessage {
+  background-color: rgb(29, 178, 84);  /* 더 밝은 초록색 */
+  color: black;  /* 진한 초록색 텍스트 */
+}
+
+.errorMessage {
+  background-color: rgb(254 226 226);
+  color: rgb(220 38 38);
+}
+
+.successMessage svg, .errorMessage svg {
+  color: black;
+  transform: translateX(-10px);
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.successMessage div,
+.errorMessage div {
+  padding-left: 30px;
+}

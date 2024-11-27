@@ -1,7 +1,7 @@
-main 브랜치 -> Assignment 26
-main22 브랜치 -> Assignment 27 (현재)
-
+main 브랜치 -> Assignment 26 <br>
+main22 브랜치 -> Assignment 27 (현재)<br>
+<br>
 <테스트 로그인>
-Email: test@zod.com
-name: 12345
+Email: test@zod.com<br>
+name: 12345<br>
 password: password123456

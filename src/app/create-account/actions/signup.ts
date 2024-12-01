@@ -1,11 +1,10 @@
-'use server';
+'use server'
 
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcryptjs';  // bcrypt 추가
-import { getSession } from '@/lib/session';  // 이 줄 추가
+import bcrypt from 'bcryptjs';
 
-const loginSchema = z.object({
+const signupSchema = z.object({
   email: z
     .string()
     .email('올바른 이메일 형식이 아닙니다.')
@@ -21,61 +20,56 @@ const loginSchema = z.object({
     .regex(/\d/, '비밀번호는 최소 1개 이상의 숫자를 포함해야 합니다.')
 });
 
-export async function loginAction(formData: FormData) {
+export async function signupAction(formData: FormData) {
   try {
-    const validatedFields = loginSchema.parse({
+    const validatedFields = signupSchema.parse({
       email: formData.get('email'),
       username: formData.get('username'),
       password: formData.get('password')
     });
 
     const { email, username, password } = validatedFields;
-    
-    const user = await prisma.user.findFirst({
+
+    // 이메일 중복 체크
+    const existingUser = await prisma.user.findFirst({
       where: {
-        AND: [
+        OR: [
           { email },
           { username }
         ]
       }
     });
 
-    if (!user) {
+    if (existingUser) {
       return {
         success: false,
-        message: '로그인 정보가 올바르지 않습니다.'
+        message: '이미 존재하는 이메일 또는 사용자명입니다.'
       };
     }
 
-    // 비밀번호 검증
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    
-    if (!isPasswordValid) {
-      return {
-        success: false,
-        message: '로그인 정보가 올바르지 않습니다.'
-      };
-    }
+    // 비밀번호 해시화
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 세션에 사용자 정보 저장
-    const session = await getSession();
-    session.user = {
-      id: user.id,
-      email: user.email,
-      username: user.username
-    };
-    await session.save();
+    // 새 사용자 생성
+    const user = await prisma.user.create({
+      data: {
+        email,
+        username,
+        password: hashedPassword,
+        bio: ''  // 기본값 설정
+      }
+    });
 
-    return { 
-      success: true, 
-      message: '로그인에 성공했습니다!',
+    return {
+      success: true,
+      message: '계정이 생성되었습니다. 로그인해주세요.',
       user: { email: user.email, username: user.username }
     };
 
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return { 
-        success: false, 
+      return {
+        success: false,
         errors: error.errors.map(err => ({
           field: err.path[0],
           message: err.message
@@ -83,10 +77,10 @@ export async function loginAction(formData: FormData) {
       };
     }
     
-    console.error('Login error:', error);
-    return { 
-      success: false, 
-      message: '로그인 처리 중 오류가 발생했습니다.' 
+    console.error('Signup error:', error);
+    return {
+      success: false,
+      message: '계정 생성 중 오류가 발생했습니다.'
     };
   }
 }

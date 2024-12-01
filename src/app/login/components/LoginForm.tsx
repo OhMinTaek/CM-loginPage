@@ -2,7 +2,9 @@
 
 import React, { useState } from 'react';
 import { loginAction } from '../actions/login';
+import { useRouter } from 'next/navigation';
 import styles from '../styles/login.module.css';
+import Link from 'next/link';
 
 // 타입 정의만을 위한 인터페이스 사용
 interface LoginFormData {
@@ -13,6 +15,7 @@ interface LoginFormData {
 
   export default function LoginForm() {
     const [loading, setLoading] = useState(false);
+    const router = useRouter();
     const [formState, setFormState] = useState<{
       success?: boolean;
       message?: string;
@@ -30,8 +33,8 @@ interface LoginFormData {
       const result = await loginAction(new FormData(form));
       setFormState(result);
       
-      if (result.success && result.user) {
-        console.log('Logged in user:', result.user);
+      if (result.success) {
+        router.push('/profile');  // 로그인 성공 시 프로필 페이지로 이동
       }
     } catch (error) {
       console.error('Form submission error:', error);
@@ -118,9 +121,15 @@ interface LoginFormData {
             {loading ? '로그인 중...' : '로그인'}
           </button>
 
+          <Link href="/create-account" className={styles.signupLink}>
+            <button type="button" className={styles.signupButton}>
+              회원가입
+            </button>
+          </Link>
+
           {formState.success && (
             <div className={styles.successMessage}>
-                <svg data-slot="icon" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <svg data-slot="icon" fill="none" strokeWidth="1.5" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"></path>
                 </svg>
                 <div>
@@ -131,7 +140,7 @@ interface LoginFormData {
           
           {!formState.success && formState.message && (
             <div className={styles.errorMessage}>
-                <svg data-slot="icon" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <svg data-slot="icon" fill="none" strokeWidth="1.5" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
                 </svg>
                 <div>

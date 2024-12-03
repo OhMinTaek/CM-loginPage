@@ -4,24 +4,24 @@ import { getSession } from '@/lib/session'
 
 export async function middleware(request: NextRequest) {
   const session = await getSession();
-
-  // /profile 페이지 접근 시 로그인 체크
-  if (request.nextUrl.pathname === '/profile') {
+ 
+  // 로그인이 필요한 페이지 체크
+  if (['/', '/profile'].includes(request.nextUrl.pathname)) {
     if (!session.user) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
   }
-
-  // 이미 로그인한 사용자가 /login 또는 /create-account 페이지 접근 시
+ 
+  // 로그인된 사용자의 로그인/회원가입 페이지 접근 체크
   if (['/login', '/create-account'].includes(request.nextUrl.pathname)) {
     if (session.user) {
-      return NextResponse.redirect(new URL('/profile', request.url))
+      return NextResponse.redirect(new URL('/', request.url))  // 홈페이지로 리다이렉트
     }
   }
-
+ 
   return NextResponse.next()
-}
-
-export const config = {
-  matcher: ['/profile', '/login', '/create-account']
-}
+ }
+ 
+ export const config = {
+  matcher: ['/', '/profile', '/login', '/create-account']
+ }

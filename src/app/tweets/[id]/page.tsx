@@ -1,37 +1,33 @@
-import { prisma } from '@/lib/prisma';
-import { notFound } from 'next/navigation';
+import { notFound } from "next/navigation";
+import db from "@/utils/db";
 
-interface PageProps {
- params: {
-   id: string;
- };
+async function getTweet(id: string) {
+  const tweet = await db.tweet.findUnique({
+    where: { id: parseInt(id) },
+    include: {
+      user: { select: { username: true } }
+    }
+  });
+  return tweet;
 }
 
-export default async function TweetDetailPage({ params }: PageProps) {
- const tweet = await prisma.tweet.findUnique({
-   where: { id: +params.id },
-   include: {
-     user: true,
-     _count: {
-       select: { likes: true }
-     }
-   }
- });
+export default async function TweetDetail({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  if (isNaN(parseInt(id))) return notFound();
+  
+  const tweet = await getTweet(id);
+  if (!tweet) return notFound();
 
- if (!tweet) {
-   notFound();
- }
-
- return (
-   <div className="p-4">
-     <div className="border rounded p-4">
-       <p className="text-lg">{tweet.tweet}</p>
-       <div className="mt-2 text-sm text-gray-500">
-         <span>{tweet.user.username}</span>
-         <span className="mx-2">•</span>
-         <span>{tweet._count.likes} likes</span>
-       </div>
-     </div>
-   </div>
- );
+  return (
+    <div className="pb-36">
+      <h3 className="p-5 flex items-center gap-3 border-b border-neutral-500">
+        {tweet.user.username}
+      </h3>
+      <p className="p-5">{tweet.tweet}</p>
+    </div>
+  );
 }

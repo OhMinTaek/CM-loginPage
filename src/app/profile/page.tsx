@@ -1,36 +1,38 @@
-import { getSession } from '@/lib/session';
-import { prisma } from '@/lib/prisma';
-import ProfileForm from './components/ProfileForm';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from "next/navigation";
 
-interface ProfileData {
-  id: number;
-  email: string;
-  username: string;
-  bio: string | null;
+import db from "@/utils/db";
+import { getSession } from "@/app/lib/session";
+import Button from "@/components/button";
+
+async function getUser() {
+  const session = await getSession();
+  if (session.id) {
+    const user = await db.user.findUnique({
+      where: {
+        id: session.id,
+      },
+    });
+    if (user) {
+      return user;
+    }
+  }
+  notFound();
 }
 
-export default async function ProfilePage() {
-  const session = await getSession();
-
-  if (!session.user?.id) {
-    redirect('/login');
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id }
-  });
-
-  if (!user) {
-    redirect('/login');
-  }
-
-  const profileData: ProfileData = {
-    id: user.id,
-    email: user.email,
-    username: user.username,
-    bio: user.bio
+export default async function Profile() {
+  const user = await getUser();
+  const logOut = async () => {
+    "use server";
+    const session = await getSession();
+    await session.destroy();
+    redirect("/");
   };
-
-  return <ProfileForm initialProfile={profileData} />;
+  return (
+    <main className="flex flex-col gap-20 items-center justify-center">
+      <h1 className="mt-40 text-xl font-bold">Welcome! {user?.username}!</h1>
+      <form className="w-full" action={logOut}>
+        <Button text="Log out" />
+      </form>
+    </main>
+  );
 }

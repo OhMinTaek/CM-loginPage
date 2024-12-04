@@ -1,7 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
-import { FireIcon, EnvelopeIcon, UserIcon, KeyIcon } from "@heroicons/react/24/solid";
+import { FireIcon, EnvelopeIcon, KeyIcon } from "@heroicons/react/24/solid";
 
 import { handleForm } from "./actions";
 
@@ -9,6 +8,7 @@ import Input from "@/components/input";
 import Button from "@/components/button";
 import SuccessMessage from "@/components/success-message";
 import Link from "next/link";
+import { useActionState } from 'react';
 
 export default function Home() {
   const [state, action] = useActionState(handleForm, null);
@@ -28,13 +28,6 @@ export default function Home() {
           labelIcon={<EnvelopeIcon />}
         />
         <Input
-          name="username"
-          placeholder="Username"
-          required={true}
-          errors={state?.error?.fieldErrors.username}
-          labelIcon={<UserIcon />}
-        />
-        <Input
           name="password"
           type="password"
           placeholder="Password"
@@ -42,13 +35,13 @@ export default function Home() {
           errors={state?.error?.fieldErrors.password}
           labelIcon={<KeyIcon />}
         />
-        <Button text="Create Account" />
+        <Button text="Log in" />
         {state?.isSuccess && <SuccessMessage />}
       </form>
       <div className="flex gap-2">
-        <span>이미 계정이 있나요?</span>
-        <Link href="/log-in" className="text-stone-600 hover:underline hover:text-stone-400">
-          Log in
+        <span>처음이신가요?</span>
+        <Link href="/create-account" className="text-stone-600 hover:underline hover:text-stone-400">
+          Create Account
         </Link>
       </div>
     </main>

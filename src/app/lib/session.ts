@@ -1,9 +1,6 @@
-import { getIronSession } from "iron-session";
-import { cookies } from "next/headers";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../api/auth/[...nextauth]/route";
 
-export const getSession = async () => {
-  return await getIronSession<{ id?: number }>(cookies(), {
-    cookieName: "carrot-market",
-    password: process.env.COOKIE_PASSWORD!,
-  });
-};
+export async function getSession() {
+ return await getServerSession(authOptions);
+}

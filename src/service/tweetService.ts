@@ -2,14 +2,28 @@
 
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
-import { redirect } from "next/navigation";
-
 import db from "../utils/db";
 import { getSession } from "@/utils/session";
 
+// 트윗 응답 타입 정의
+interface TweetResponse {
+  tweet?: {
+    id: number;
+    tweet: string;
+    userId: number;
+    created_at: Date;
+  };
+  error?: {
+    fieldErrors: Record<string, string[]>;
+    formErrors: string[];
+  };
+  isSuccess: boolean;
+}
+
 const LIMIT_NUMBER = 2;
+
 export const getInitialTweets = async () => {
-  const tweets = db.tweet.findMany({
+  const tweets = await db.tweet.findMany({
     include: { user: true },
     take: LIMIT_NUMBER,
     orderBy: {
@@ -18,6 +32,7 @@ export const getInitialTweets = async () => {
   });
   return tweets;
 };
+
 export type InitialTweets = Prisma.PromiseReturnType<typeof getInitialTweets>;
 
 export async function getTweetsByPage(page: number) {
@@ -49,13 +64,15 @@ const tweetSchema = z.object({
   }),
 });
 
-export async function uploadTweet(_: unknown, formData: FormData) {
+export async function uploadTweet(_: unknown, formData: FormData): Promise<TweetResponse> {
   const session = await getSession();
   if (!session.id) {
-    redirect("/log-in");
+    return {
+      error: { fieldErrors: {}, formErrors: ["Please log in to tweet"] },
+      isSuccess: false
+    };
   }
 
-  // 유저 존재 여부 확인
   const existingUser = await db.user.findUnique({
     where: {
       id: session.id
@@ -64,7 +81,7 @@ export async function uploadTweet(_: unknown, formData: FormData) {
 
   if (!existingUser) {
     return {
-      error: { formErrors: ["User not found"], fieldErrors: {} },
+      error: { fieldErrors: {}, formErrors: ["User not found"] },
       isSuccess: false
     };
   }
@@ -81,14 +98,30 @@ export async function uploadTweet(_: unknown, formData: FormData) {
     };
   }
 
-  const tweet = await db.tweet.create({
-    data: {
-      tweet: result.data.tweet,
-      userId: session.id
-    },
-  });
+  try {
+    const tweet = await db.tweet.create({
+      data: {
+        tweet: result.data.tweet,
+        userId: session.id
+      },
+      select: {
+        id: true,
+        tweet: true,
+        userId: true,
+        created_at: true,
+      },
+    });
 
-  redirect(`/tweets/${tweet.id}`);
+    return {
+      tweet,
+      isSuccess: true,
+    };
+  } catch {
+    return {
+      error: { fieldErrors: {}, formErrors: ["Failed to create tweet"] },
+      isSuccess: false
+    };
+  }
 }
 
 export async function getTweetDetail(tweetId: number) {

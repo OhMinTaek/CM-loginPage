@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useFormState } from "react-dom";
 import { FireIcon, EnvelopeIcon, UserIcon, KeyIcon } from "@heroicons/react/24/solid";
 
 import { handleForm } from "./actions";
@@ -11,7 +11,7 @@ import SuccessMessage from "@/components/success-message";
 import Link from "next/link";
 
 export default function Home() {
-  const [state, action] = useActionState(handleForm, null);
+  const [state, action] = useFormState(handleForm, null);
 
   return (
     <main className="flex flex-col gap-10 items-center justify-center">

@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 
 import db from "@/utils/db";
-import { getSession } from "@/app/lib/session";
+import { getSession } from "@/utils/session";
 import Button from "@/components/button";
 
 async function getUser() {

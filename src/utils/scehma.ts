@@ -1,4 +1,5 @@
 import { z } from "zod";
+
 export const responseSchema = z
   .string({
     required_error: "Response is required.",

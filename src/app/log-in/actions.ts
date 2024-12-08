@@ -1,12 +1,12 @@
 "use server";
 
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import { redirect } from "next/navigation";
 import { typeToFlattenedError, z } from "zod";
 
 import db from "@/utils/db";
 import { isEmailExist } from "@/service/userService";
-import { getSession } from "@/app/lib/session";
+import { getSession } from "@/utils/session";
 
 const logInSchema = z.object({
   email: z
@@ -33,7 +33,7 @@ export async function handleForm(_: unknown, formData: FormData): Promise<FormSt
     email: formData.get("email"),
     password: formData.get("password"),
   };
-  const result = await logInSchema.spa(data);
+  const result = await logInSchema.safeParse(data);
   if (!result.success) {
     return {
       error: result.error?.flatten(),

@@ -33,7 +33,7 @@ export async function handleForm(_: unknown, formData: FormData): Promise<FormSt
     email: formData.get("email"),
     password: formData.get("password"),
   };
-  const result = await logInSchema.safeParse(data);
+  const result = await logInSchema.spa(data);
   if (!result.success) {
     return {
       error: result.error?.flatten(),

@@ -7,11 +7,7 @@ import { typeToFlattenedError, z } from "zod";
 import db from "@/utils/db";
 import { isEmailExist, isUsernameExist } from "@/service/userService";
 import { getSession } from "@/utils/session";
-
-const USERNAME_MIN_LENGTH = 5;
-const PASSWORD_MIN_LENGTH = 10;
-
-const PASSWORD_REGEX = /^(?=.*\d).{10,}$/;
+import { PASSWORD_MIN_LENGTH, PASSWORD_REGEX, USERNAME_MIN_LENGTH } from "../../utils/constants";
 
 const createAccountSchema = z
   .object({

@@ -8,14 +8,6 @@ import { addTweetResponse, InitialResponses } from "@/service/responseService";
 import Input from "./input";
 import { responseSchema } from "@/utils/scehma";
 
-// 에러 타입 정의
-type FormError = {
-  fieldErrors: {
-    text?: string[];
-  };
-  formErrors: string[];
-};
-
 export default function Responses({
   initialResponses,
   tweetId,
@@ -31,7 +23,7 @@ export default function Responses({
       return [
         ...previousResponses,
         {
-          id: new Date().getTime(),
+          id: new Date().getDate(),
           text: responseOptimisticValue,
           created_at: new Date(),
           tweetId,
@@ -41,32 +33,16 @@ export default function Responses({
     }
   );
 
-  const handleUploadResponse = async (prevState: FormError | null, formData: FormData) => {
+  const handleUploadResponse = (_: unknown, formData: FormData) => {
     const result = responseSchema.safeParse(formData.get("text"));
-      
     if (result.success) {
       optimisticResponse(result.data);
-      const response = await addTweetResponse(formData);
-        
-      if (!response?.isSuccess) {
-        return {
-          fieldErrors: { text: [response?.error as string] },
-          formErrors: [],
-        } as FormError;
-      }
-      return null;
+      addTweetResponse(formData);
+    } else {
+      return result.error.flatten();
     }
-      
-    return {
-      fieldErrors: { 
-        text: result.error.errors.map(err => err.message)
-      },
-      formErrors: [],
-  } as FormError;
   };
-
   const [state, action] = useFormState(handleUploadResponse, null);
-
   return (
     <div className="w-full flex flex-col gap-3">
       <form action={action} className="flex w-full gap-2 ">
@@ -76,7 +52,7 @@ export default function Responses({
           type="text"
           required
           placeholder="Write a response."
-          errors={state?.fieldErrors?.text}
+          errors={state?.fieldErrors[0]}
         />
         <input className="hidden" type="hidden" name="tweetId" value={tweetId} />
         <button className="ml-auto min-w-14 bg-stone-300 rounded-xl p-3">추가</button>

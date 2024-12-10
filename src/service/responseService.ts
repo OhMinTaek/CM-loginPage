@@ -32,31 +32,22 @@ export const addTweetResponse = async (formData: FormData) => {
   const text = formData.get("text");
   const tweetId = formData.get("tweetId");
   const result = responseSchema.safeParse(text);
-  
   if (!result.success) {
     return { error: result.error.flatten(), isSuccess: false };
   }
-  
   const session = await getSession();
-  
   try {
-    if (!session.id) {
-      throw new Error("Authentication required");
+    if (session.id) {
+      await db.response.create({
+        data: {
+          userId: session.id,
+          tweetId: Number(tweetId),
+          text: result.data,
+        },
+      });
     }
-    
-    const response = await db.response.create({
-      data: {
-        userId: session.id,
-        tweetId: Number(tweetId),
-        text: result.data,
-      },
-    });
-    
-    revalidateTag(`tweet-responses-${tweetId}`);
-    return { isSuccess: true, data: response };
-    
   } catch (error) {
     console.error(error);
-    return { error: "Failed to add response", isSuccess: false };
   }
+  revalidateTag(`tweet-responses-${tweetId}`);
 };

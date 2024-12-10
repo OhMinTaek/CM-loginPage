@@ -16,7 +16,27 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} relative max-w-screen-sm mx-auto py-10 px-5 bg-stone-100`}>{children}</body>
+      <body className={`${inter.className} relative max-w-screen-sm mx-auto py-10 px-5 bg-stone-100`}>
+        {children}
+      </body>
     </html>
   );
 }
+
+// (tab)
+// import TabBar from "@/components/tab-bar";
+// import { getUserInfoBySession } from "@/service/userService";
+
+// export default async function RootLayout({
+//   children,
+// }: Readonly<{
+//   children: React.ReactNode;
+// }>) {
+//   const user = await getUserInfoBySession();
+//   return (
+//     <div>
+//       <div>{children}</div>
+//       <TabBar username={user.username} />
+//     </div>
+//   );
+// }

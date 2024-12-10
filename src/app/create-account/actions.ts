@@ -60,39 +60,64 @@ const createAccountSchema = z
     }
   });
 
-interface FormState {
-  isSuccess: boolean;
-  error: typeToFlattenedError<{ email: string; username: string; password: string }, string> | null;
+interface SuccessState {
+  isSuccess: true;
+  error: null;
 }
 
+interface ErrorState {
+  isSuccess: false;
+  error: typeToFlattenedError<{ email: string; username: string; password: string }, string>;
+}
+
+type FormState = SuccessState | ErrorState;
+
 export async function handleForm(_: unknown, formData: FormData): Promise<FormState> {
-  const data = {
-    username: formData.get("username"),
-    email: formData.get("email"),
-    password: formData.get("password"),
-  };
-  const result = await createAccountSchema.spa(data);
-  if (!result.success) {
+  try {
+    const data = {
+      username: formData.get("username"),
+      email: formData.get("email"),
+      password: formData.get("password"),
+    };
+
+    const validatedData = await createAccountSchema.parseAsync(data);
+    
+    const hashedPassword = await bcrypt.hash(validatedData.password, 12);
+    const user = await db.user.create({
+      data: {
+        email: validatedData.email,
+        username: validatedData.username,
+        password: hashedPassword,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const session = await getSession();
+    session.id = user.id;
+    await session.save();
+
+    redirect("/");
+    
+    // TypeScript를 위한 더미 리턴
+    return { isSuccess: true, error: null };
+
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return {
+        error: error.flatten(),
+        isSuccess: false,
+      };
+    }
+    
+    // 다른 에러 처리
     return {
-      error: result.error?.flatten(),
+      error: {
+        formErrors: ["An unexpected error occurred"],
+        fieldErrors: {},
+      },
       isSuccess: false,
     };
   }
-
-  const hashedPassword = await bcrypt.hash(result.data.password, 12);
-  const user = await db.user.create({
-    data: {
-      email: result.data.email,
-      username: result.data.username,
-      password: hashedPassword,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  const session = await getSession();
-  session.id = user.id;
-  await session.save();
-  redirect("/");
 }

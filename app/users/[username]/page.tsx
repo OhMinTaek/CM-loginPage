@@ -1,5 +1,5 @@
 import { getUserProfile, getUserTweets } from "./actions";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import TweetCard from "@/components/tweet-card";
 import BackButton from "@/app/components/back-button";
 import { revalidatePath } from "next/cache";
@@ -15,10 +15,10 @@ export default async function UserProfilePage({
 
   const session = await getSession();
 
-  const revalidate = async () => {
-    "use server";
+  // 새로고침 버튼 동작
+  const handleRevalidate = async () => {
+    "use server"; // 서버에서 실행
     revalidatePath(`/users/${username}`);
-    redirect(`/users/${username}`);
   };
 
   const [profile, tweets] = await Promise.all([
@@ -29,17 +29,21 @@ export default async function UserProfilePage({
   if (!profile) {
     notFound();
   }
+
   const isOwner = session?.id === profile?.id;
 
   return (
     <div className="p-6">
       <div className="mb-4 flex justify-between items-center">
         <BackButton />
-        <form action={revalidate}>
-          <button className="text-blue-500" type="submit">
-            새로고침
-          </button>
-        </form>
+        {/* 새로고침 버튼으로 변경 */}
+        <button
+          className="text-blue-500 hover:underline"
+          type="button"
+          onClick={handleRevalidate}
+        >
+          새로고침
+        </button>
       </div>
       <div className="flex items-center gap-4 mb-8">
         <div>

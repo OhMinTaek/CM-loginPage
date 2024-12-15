@@ -4,7 +4,7 @@ import ResponseList from "@/components/response-list";
 import getSession from "@/lib/session";
 import { unstable_cache as nextCache, revalidatePath } from "next/cache";
 import db from "@/lib/db";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import LikeButton from "@/components/like-button";
 
 async function getLikeStatus(tweetId: number, userId: number) {
@@ -35,18 +35,21 @@ async function getCachedLikeStatus(tweetId: number) {
   });
   return cachedOperation(tweetId, userId!);
 }
+
+// 새로고침 동작
+async function revalidateTweet(id: string) {
+  "use server"; // 서버에서 실행
+  revalidatePath(`/tweets/${id}`);
+}
+
 export default async function TweetDetail({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const revalidate = async () => {
-    "use server";
-    revalidatePath(`/tweets/${id}`);
-    redirect(`/tweets/${id}`);
-  };
   const session = await getSession();
+
   if (!session || typeof session.id === "undefined") {
     return <div>로그인이 필요합니다</div>;
   }
@@ -59,14 +62,24 @@ export default async function TweetDetail({
   const username = await getUserName(session.id);
   const { likeCount, isLiked } = await getCachedLikeStatus(Number(id));
 
+  // 새로고침 버튼 이벤트 핸들러
+  const handleRevalidate = async () => {
+    await revalidateTweet(id);
+  };
+
   return (
     <div className="max-w-2xl mx-auto">
       <div className="p-6 bg-white rounded-xl shadow-md">
         <div className="flex justify-between items-center mb-4 *:text-blue-500">
           <Link href="/?page=1">← 목록으로 돌아가기</Link>
-          <form action={revalidate}>
-            <button type="submit">새로고침</button>
-          </form>
+          {/* 버튼 클릭 이벤트로 새로고침 처리 */}
+          <button
+            type="button"
+            onClick={handleRevalidate}
+            className="text-blue-500 hover:underline"
+          >
+            새로고침
+          </button>
         </div>
         <h1 className="text-lg font-bold mb-4 break-words">
           {tweetDetail.tweet}
